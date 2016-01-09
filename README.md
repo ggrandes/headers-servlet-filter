@@ -19,21 +19,21 @@ Provides control over HTTP response headers in a Servlet container like Tomcat. 
     <!-- The response header is set, replacing any previous header with this name -->
     <!-- Cache Control / Expiration -->
     <init-param>
-       <param-name>Cache-Control</param-name>
-       <param-value>no-cache, no-store, must-revalidate, max-age=0</param-value>
+        <param-name>Cache-Control</param-name>
+        <param-value>no-cache, no-store, must-revalidate, max-age=0</param-value>
     </init-param>
     <init-param>
-       <param-name>Expires</param-name>
-       <param-value>0</param-value>
+        <param-name>Expires</param-name>
+        <param-value>0</param-value>
     </init-param>
     <!-- SSL/TLS Security -->
     <init-param>
-       <param-name>Strict-Transport-Security</param-name>
-       <param-value>max-age=15638400</param-value>
+        <param-name>Strict-Transport-Security</param-name>
+        <param-value>max-age=15638400</param-value>
     </init-param>
     <init-param>
-       <param-name>Public-Key-Pins</param-name>
-       <param-value>pin-sha256="base64+primary=="; pin-sha256="b64+backup=="; max-age=604800</param-value>
+        <param-name>Public-Key-Pins</param-name>
+        <param-value>pin-sha256="base64+primary=="; pin-sha256="b64+backup=="; max-age=604800</param-value>
     </init-param>
 </filter>
 <filter-mapping>
