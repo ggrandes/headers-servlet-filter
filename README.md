@@ -33,7 +33,7 @@ Provides control over HTTP response headers in a Servlet container like Tomcat. 
     </init-param>
     <init-param>
        <param-name>Public-Key-Pins</param-name>
-       <param-value>pin-sha256="base64+primary=="; pin-sha256="base64+backup=="; max-age=15638400</param-value>
+       <param-value>pin-sha256="base64+primary=="; pin-sha256="b64+backup=="; max-age=604800</param-value>
     </init-param>
 </filter>
 <filter-mapping>
