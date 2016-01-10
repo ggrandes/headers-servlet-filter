@@ -2,7 +2,7 @@
 
 Provides control over HTTP response headers in a Servlet container like Tomcat. Open Source Java project under Apache License v2.0
 
-### Current Stable Version is [1.0.0](https://search.maven.org/#search|ga|1|g%3Aorg.javastack%20a%3Aheaders-servlet-filter)
+### Current Development Version is [1.0.0](https://search.maven.org/#search|ga|1|g%3Aorg.javastack%20a%3Aheaders-servlet-filter)
 
 ---
 
