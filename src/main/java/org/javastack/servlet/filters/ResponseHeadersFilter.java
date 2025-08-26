@@ -1,10 +1,16 @@
 package org.javastack.servlet.filters;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,6 +21,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 public final class ResponseHeadersFilter implements Filter {
+	private static final String jvmName = getJvmname();
+	private static final String hostName = getHostname();
+	private static final int pid = getPID();
 	private List<Header> earlyHeaders = null;
 	private List<Header> lateHeaders = null;
 
@@ -26,7 +35,7 @@ public final class ResponseHeadersFilter implements Filter {
 		while (e.hasMoreElements()) {
 			final String name = e.nextElement();
 			final String[] nt = name.split(":");
-			final String value = filterConfig.getInitParameter(name);
+			final String value = evalExpressionInit(filterConfig.getInitParameter(name));
 			final TAG tag = ((nt.length < 2) ? TAG.SET : TAG.getTag(nt[1]));
 			final TYPE type = ((nt.length < 3) ? TYPE.EARLY : TYPE.getType(nt[2]));
 			if (type == TYPE.LATE) {
@@ -40,16 +49,19 @@ public final class ResponseHeadersFilter implements Filter {
 	}
 
 	@Override
-	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
-			throws IOException, ServletException {
+	public void doFilter(final ServletRequest request, final ServletResponse response, //
+			final FilterChain chain) throws IOException, ServletException {
 		if (response instanceof HttpServletResponse) {
 			final HttpServletResponse res = ((HttpServletResponse) response);
-			for (final Header e : earlyHeaders) {
-				processHeader(res, e);
-			}
-			chain.doFilter(request, response);
-			for (final Header e : lateHeaders) {
-				processHeader(res, e);
+			try {
+				for (final Header e : earlyHeaders) {
+					processHeader(res, e);
+				}
+				chain.doFilter(request, response);
+			} finally {
+				for (final Header e : lateHeaders) {
+					processHeader(res, e);
+				}
 			}
 		} else {
 			chain.doFilter(request, response);
@@ -85,6 +97,86 @@ public final class ResponseHeadersFilter implements Filter {
 
 	@Override
 	public void destroy() {
+	}
+
+	private static String getJvmname() {
+		// something like '<pid>@<hostname>', at least in SUN / Oracle JVMs
+		try {
+			return ManagementFactory.getRuntimeMXBean().getName();
+		} catch (Exception e) {
+		}
+		return "";
+	}
+
+	private static String getHostname() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+		}
+		// something like '<pid>@<hostname>', at least in SUN / Oracle JVMs
+		final int index = jvmName.indexOf('@');
+		if (index >= 1) {
+			return jvmName.substring(index + 1);
+		}
+		return "unknown";
+	}
+
+	private static int getPID() {
+		// Linux
+		try {
+			final File f = new File("/proc/self");
+			if (f.exists()) {
+				return Integer.parseInt(f.getCanonicalFile().getName());
+			}
+		} catch (Exception e) {
+		}
+		// something like '<pid>@<hostname>', at least in SUN / Oracle JVMs
+		final int index = jvmName.indexOf('@');
+		if (index >= 1) {
+			return Integer.parseInt(jvmName.substring(0, index));
+		}
+		return 0;
+	}
+
+	private static String getSystemValue(final String key) {
+		switch (key) {
+			case "HOSTNAME":
+				return hostName;
+			case "PID":
+				return String.valueOf(pid);
+			default:
+				return null;
+		}
+	}
+
+	private static String evalExpressionInit(final String input) {
+		if (input == null) {
+			return "";
+		}
+		final Pattern p = Pattern.compile("\\{\\{([A-Z]+):([^}]+)\\}\\}"); // {{TAG:name}}
+		final Matcher m = p.matcher(input);
+		final StringBuffer sb = new StringBuffer();
+		while (m.find()) {
+			final String tag = m.group(1); // ENV, PROP, SYS
+			final String name = m.group(2).trim();
+			final String value;
+			switch (tag) {
+				case "ENV":
+					value = System.getenv(name);
+					break;
+				case "PROP":
+					value = System.getProperty(name);
+					break;
+				case "SYS":
+					value = getSystemValue(name);
+					break;
+				default:
+					value = m.group(0); // untouched
+			}
+			m.appendReplacement(sb, Matcher.quoteReplacement((value != null) ? value : ""));
+		}
+		m.appendTail(sb);
+		return sb.toString();
 	}
 
 	private static enum TAG {

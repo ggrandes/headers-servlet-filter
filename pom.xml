@@ -4,7 +4,7 @@
 
 	<groupId>org.javastack</groupId>
 	<artifactId>headers-servlet-filter</artifactId>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<description>HTTP-Header manipulation using Servlet Filters</description>
 
 	<dependencies>
@@ -18,7 +18,7 @@
 	</dependencies>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<url>https://github.com/ggrandes/${project.artifactId}</url>
+	<url>https://github.com/ggrandes/headers-servlet-filter</url>
 	<licenses>
 		<license>
 			<name>The Apache License, Version 2.0</name>
@@ -33,56 +33,64 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:git@github.com:ggrandes/${project.artifactId}.git</connection>
-		<developerConnection>scm:git:git@github.com:ggrandes/${project.artifactId}.git</developerConnection>
-		<url>git@github.com:ggrandes/${project.artifactId}.git</url>
+		<connection>scm:git:git@github.com:ggrandes/headers-servlet-filter.git</connection>
+		<developerConnection>scm:git:git@github.com:ggrandes/headers-servlet-filter.git</developerConnection>
+		<url>git@github.com:ggrandes/headers-servlet-filter.git</url>
 	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+	</properties>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.10.1</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<!-- Package Classes to JAR to upload to repo -->
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
+				<version>3.2.2</version>
 				<configuration>
 					<finalName>${project.artifactId}-${project.version}</finalName>
 					<forceCreation>true</forceCreation>
 					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
 						<manifestEntries>
 							<Built-By>maven</Built-By>
+							<Implementation-Vendor>${project.groupId}</Implementation-Vendor>
+							<Implementation-Title>${project.groupId}:${project.artifactId}</Implementation-Title>
+							<Implementation-Version>${project.version}</Implementation-Version>
 						</manifestEntries>
 					</archive>
-					<excludes>
-						<exclude>**/pom.properties</exclude>
-						<exclude>**/log4j.properties</exclude>
-						<exclude>**/sandbox/*</exclude>
-					</excludes>
 				</configuration>
 			</plugin>
 			<!-- Package source to JAR to upload to repo -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<goals>
 							<goal>jar</goal>
 						</goals>
 						<configuration>
+							<archive>
+								<manifestEntries>
+									<Built-By>maven</Built-By>
+								</manifestEntries>
+							</archive>
 							<excludeResources>true</excludeResources>
-							<excludes>
-								<exclude>**/sandbox/*</exclude>
-							</excludes>
 						</configuration>
 					</execution>
 				</executions>
@@ -91,7 +99,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.3</version>
+				<version>3.3.2</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -101,21 +109,14 @@
 					</execution>
 				</executions>
 				<configuration>
-					<tags>
-						<tag>
-							<name>threadSafe</name>
-							<placement>a</placement>
-							<head>ThreadSafe:</head>
-						</tag>
-					</tags>
-					<excludePackageNames>*.sandbox.*</excludePackageNames>
+					<source>${java.version}</source>
 				</configuration>
 			</plugin>
 			<!-- GPG Signed Components for Maven Central -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.5</version>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
@@ -128,28 +129,16 @@
 			</plugin>
 			<!-- Maven Central Deployment -->
 			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.3</version>
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>0.8.0</version>
 				<extensions>true</extensions>
 				<configuration>
-					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+					<publishingServerId>central</publishingServerId>
+					<autoPublish>true</autoPublish>
+					<waitUntil>published</waitUntil>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
-	<!-- Maven Central Deployment -->
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-		</repository>
-	</distributionManagement>
 </project>
