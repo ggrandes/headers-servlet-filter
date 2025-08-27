@@ -3,16 +3,16 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.javastack</groupId>
-	<artifactId>headers-servlet-filter</artifactId>
-	<version>1.1.0</version>
-	<description>HTTP-Header manipulation using Servlet Filters</description>
+	<artifactId>headers-servlet-filter-jakarta</artifactId>
+	<version>2.0.0</version>
+	<description>HTTP-Header manipulation using Servlet Filters (Jakarta)</description>
 
 	<dependencies>
 		<!-- Servlets -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>5.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
